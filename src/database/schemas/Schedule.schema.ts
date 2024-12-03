@@ -18,9 +18,6 @@ export class Schedule {
   vehicle_id: string;
 
   @Prop({ type: Date, required: true, default: tz('Asia/Manila') })
-  date: Date;
-
-  @Prop({ type: Date, required: true, default: tz('Asia/Manila') })
   from: Date;
 
   @Prop({ type: Date, required: true, default: tz('Asia/Manila') })

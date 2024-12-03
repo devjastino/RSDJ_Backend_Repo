@@ -1,29 +1,29 @@
 import { Body, Controller, Get, Post, Res } from '@nestjs/common';
-import { SchedulingServicesService } from './scheduling-services.service';
+import { VehicleServicesService } from './vehicle-services.service';
 import { ResponseDTO } from 'src/constants/response.dto';
 import { Response } from 'express';
-import { CreateScheduleDto } from './dto/create-schedule-service.dto';
+import { CreateVehicleDto } from './dto/create-vehicle-service.dto';
 
-@Controller('scheduling-services')
-export class SchedulingServicesController {
+@Controller('vehicle-services')
+export class VehicleServicesController {
   constructor(
-    private readonly schedulingServicesService: SchedulingServicesService,
+    private readonly vehicleServicesService: VehicleServicesService,
   ) {}
 
   @Post()
   async create(
-    @Body() createScheduleDto: CreateScheduleDto,
+    @Body() createVechicleDto: CreateVehicleDto,
     @Res() res: Response,
   ): Promise<void> {
     let response: Awaited<ResponseDTO> =
-      await this.schedulingServicesService.create(createScheduleDto);
+      await this.vehicleServicesService.create(createVechicleDto);
     res.status(response.status).send(response);
   }
 
   @Get()
   async getAll(@Res() res: Response): Promise<void> {
     let response: Awaited<ResponseDTO> =
-      await this.schedulingServicesService.getAll();
+      await this.vehicleServicesService.getAll();
     res.status(response.status).send(response);
   }
 }

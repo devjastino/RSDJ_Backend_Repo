@@ -22,6 +22,13 @@ export class Vehicle {
   vehicle_description: string;
 
   @Prop({
+    type: String,
+    required: true,
+    unique: true,
+  })
+  plate_number: string;
+
+  @Prop({
     type: Number,
     default: 1,
   })

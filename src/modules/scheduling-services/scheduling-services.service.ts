@@ -4,12 +4,53 @@ import { Model } from 'mongoose';
 import { ResponseDTO } from 'src/constants/response.dto';
 import { Schedule } from 'src/database/schemas/Schedule.schema';
 import { RESPONSE } from 'src/utils/response.utils';
+import { CreateScheduleDto } from './dto/create-schedule-service.dto';
+import { tz } from 'moment-timezone';
 
 @Injectable()
 export class SchedulingServicesService {
   constructor(
     @InjectModel(Schedule.name) private scheduleModel: Model<Schedule>,
   ) {}
+
+  async create(createScheduleDto: CreateScheduleDto): Promise<ResponseDTO> {
+    try {
+      createScheduleDto.from = await tz(
+        `${createScheduleDto.from}`,
+        'Asia/Manila',
+      ).toDate();
+
+      createScheduleDto.to = await tz(
+        `${createScheduleDto.to}`,
+        'Asia/Manila',
+      ).toDate();
+
+      let exists: Awaited<any[]> = await this.scheduleModel.find({
+        vehicle_id: createScheduleDto.vehicle_id,
+        $and: [
+          { from: { $gte: createScheduleDto.from } },
+          { to: { $lte: createScheduleDto.to } },
+        ],
+      });
+
+      if (exists.length !== 0) {
+        return RESPONSE(HttpStatus.BAD_REQUEST, {}, 'Already Booked!');
+      }
+
+      let response: Awaited<any | null> = await this.scheduleModel.create(
+        createScheduleDto,
+      );
+
+      if (response == null) {
+        return RESPONSE(HttpStatus.BAD_REQUEST, {}, 'Bad Request!');
+      }
+
+      return RESPONSE(HttpStatus.CREATED, response, 'Created!');
+    } catch (error: any) {
+      console.log(error);
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
 
   async getAll(): Promise<ResponseDTO> {
     try {
