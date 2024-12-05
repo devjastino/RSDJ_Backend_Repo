@@ -25,7 +25,7 @@ export class SchedulingServicesService {
         'Asia/Manila',
       ).toDate();
 
-      let exists: Awaited<any[]> = await this.scheduleModel.find({
+      let exists: number = await this.scheduleModel.countDocuments({
         vehicle_id: createScheduleDto.vehicle_id,
         $and: [
           { from: { $gte: createScheduleDto.from } },
@@ -33,7 +33,7 @@ export class SchedulingServicesService {
         ],
       });
 
-      if (exists.length !== 0) {
+      if (exists !== 0) {
         return RESPONSE(HttpStatus.BAD_REQUEST, {}, 'Already Booked!');
       }
 
@@ -47,7 +47,6 @@ export class SchedulingServicesService {
 
       return RESPONSE(HttpStatus.CREATED, response, 'Created!');
     } catch (error: any) {
-      console.log(error);
       return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
     }
   }
@@ -55,6 +54,33 @@ export class SchedulingServicesService {
   async getAll(): Promise<ResponseDTO> {
     try {
       let response: Awaited<any[]> = await this.scheduleModel.find();
+      if (response.length == 0) {
+        return RESPONSE(HttpStatus.NOT_FOUND, [], 'No Schedules Yet!');
+      }
+      return RESPONSE(HttpStatus.OK, response, 'OK!');
+    } catch (error: any) {
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
+
+  async getAllDetails(): Promise<ResponseDTO> {
+    try {
+      let response: Awaited<any[]> = await this.scheduleModel.aggregate([
+        {
+          $addFields: {
+            price: { $toDouble: { $toString: '$price' } },
+            date_to: tz({ $toString: '$$to' }, 'Asia/Manila').format(
+              'YYYY-MM-Do hh:mm A',
+            ),
+            date_from: tz({ $toString: '$$from' }, 'Asia/Manila').format(
+              'YYYY-MM-Do hh:mm A',
+            ),
+            test_create: tz({ $toString: '$$createdAt' }, 'Asia/Manila').format(
+              'YYYY-MM-Do hh:mm A',
+            ),
+          },
+        },
+      ]);
       if (response.length == 0) {
         return RESPONSE(HttpStatus.NOT_FOUND, [], 'No Schedules Yet!');
       }

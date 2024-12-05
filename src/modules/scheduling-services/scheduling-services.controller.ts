@@ -26,4 +26,11 @@ export class SchedulingServicesController {
       await this.schedulingServicesService.getAll();
     res.status(response.status).send(response);
   }
+
+  @Get('get-details')
+  async getAllDetails(@Res() res: Response): Promise<void> {
+    let response: Awaited<ResponseDTO> =
+      await this.schedulingServicesService.getAllDetails();
+    res.status(response.status).send(response);
+  }
 }
