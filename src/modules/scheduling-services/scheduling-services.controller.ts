@@ -11,7 +11,7 @@ import { SchedulingServicesService } from './scheduling-services.service';
 import { ResponseDTO } from 'src/constants/response.dto';
 import { Response, Request } from 'express';
 import { CreateScheduleDto } from './dto/create-schedule-service.dto';
-import { AuthGuard } from '../../constants/auth.guard';
+import { AuthGuard } from '../../authentication/auth.guard';
 @Controller('scheduling-services')
 export class SchedulingServicesController {
   constructor(
