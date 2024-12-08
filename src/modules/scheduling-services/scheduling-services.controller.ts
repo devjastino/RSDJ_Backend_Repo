@@ -29,7 +29,7 @@ export class SchedulingServicesController {
     res.status(response.status).send(response);
   }
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Get()
   async getAll(@Req() req: Request, @Res() res: Response): Promise<void> {
     let response: Awaited<ResponseDTO> =

@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { randomUUID } from 'crypto';
+import { ImageSchema } from './Image.schema';
 
 export type VehicleDocument = HydratedDocument<Vehicle>;
 
@@ -15,6 +16,24 @@ export class Vehicle {
     unique: true,
   })
   vehicle_name: string;
+
+  @Prop({
+    type: String,
+    required: true,
+  })
+  vehicle_model: string;
+
+  @Prop({
+    type: [ImageSchema],
+    required: true,
+  })
+  images: { image_url: string; is_active: boolean }[];
+
+  @Prop({
+    type: String,
+    required: true,
+  })
+  vehicle_type: string;
 
   @Prop({
     type: String,

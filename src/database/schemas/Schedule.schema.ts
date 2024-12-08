@@ -32,6 +32,9 @@ export class Schedule {
   @Prop({ type: String, default: '' })
   destination_details: string;
 
+  @Prop({ type: String, required: true })
+  drop_point: string;
+
   @Prop({
     type: Scheme.Types.Decimal128,
     required: true,

@@ -26,4 +26,11 @@ export class VehicleServicesController {
       await this.vehicleServicesService.getAll();
     res.status(response.status).send(response);
   }
+
+  @Get("get-all")
+  async getAllVehicles(@Res() res: Response): Promise<void> {
+    let response: Awaited<ResponseDTO> =
+      await this.vehicleServicesService.getAllVehicles();
+    res.status(response.status).send(response);
+  }
 }

@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 import { randomUUID } from 'crypto';
-import { isEmail } from 'validator';
 import { Schema as Scheme } from 'mongoose';
 
 export type PricingDocument = HydratedDocument<Pricing>;

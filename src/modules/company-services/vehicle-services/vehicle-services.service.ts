@@ -15,6 +15,10 @@ export class VehicleServicesService {
 
   async create(createVehicleDto: CreateVehicleDto) {
     try {
+      let getArray: { image_url: string; is_active: boolean }[] = JSON.parse(
+        createVehicleDto.images,
+      );
+      createVehicleDto.images = getArray;
       let response: Awaited<GetVehicleDto | null> =
         await this.vehicleModel.create(createVehicleDto);
       if (response == null) {
@@ -22,6 +26,7 @@ export class VehicleServicesService {
       }
       return RESPONSE(HttpStatus.CREATED, response, 'Created!');
     } catch (error: any) {
+      console.log(error);
       return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
     }
   }
@@ -31,6 +36,30 @@ export class VehicleServicesService {
       let response: Awaited<GetVehicleDto[]> = await this.vehicleModel
         .find({ is_active: true })
         .select({ __v: 0 });
+      if (response.length == 0) {
+        return RESPONSE(HttpStatus.NOT_FOUND, [], 'No Schedules Yet!');
+      }
+      return RESPONSE(HttpStatus.OK, response, 'OK!');
+    } catch (error: any) {
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
+
+  async getAllVehicles(): Promise<ResponseDTO> {
+    try {
+      let response: Awaited<GetVehicleDto[]> =
+        await this.vehicleModel.aggregate([
+          {
+            $addFields: {
+              display_image: { $first: '$images' },
+            },
+          },
+          {
+            $project: {
+              __v: 0,
+            },
+          },
+        ]);
       if (response.length == 0) {
         return RESPONSE(HttpStatus.NOT_FOUND, [], 'No Schedules Yet!');
       }
