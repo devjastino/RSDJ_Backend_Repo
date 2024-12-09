@@ -10,6 +10,7 @@ import { SchedulingServicesModule } from './modules/scheduling-services/scheduli
 import { MessagingServicesModule } from './modules/messaging-services/messaging-services.module';
 import { ConfigModule } from '@nestjs/config';
 import { PaymentServicesModule } from './modules/payment-services/payment-services.module';
+import { TransactionServicesModule } from './modules/transaction-services/transaction-services.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { PaymentServicesModule } from './modules/payment-services/payment-servic
     SchedulingServicesModule,
     MessagingServicesModule,
     PaymentServicesModule,
+    TransactionServicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

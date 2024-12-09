@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Res } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Res } from '@nestjs/common';
 import { VehicleServicesService } from './vehicle-services.service';
 import { ResponseDTO } from 'src/constants/response.dto';
 import { Response } from 'express';
@@ -27,10 +27,20 @@ export class VehicleServicesController {
     res.status(response.status).send(response);
   }
 
-  @Get("get-all")
+  @Get('get-all')
   async getAllVehicles(@Res() res: Response): Promise<void> {
     let response: Awaited<ResponseDTO> =
       await this.vehicleServicesService.getAllVehicles();
+    res.status(response.status).send(response);
+  }
+
+  @Get('get-by-query/:id')
+  async getVehicleByQuery(
+    @Param() params: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    let response: Awaited<ResponseDTO> =
+      await this.vehicleServicesService.getVehicleByQuery(params.id);
     res.status(response.status).send(response);
   }
 }

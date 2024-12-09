@@ -17,17 +17,33 @@ export class Transaction {
   })
   transaction_price: number;
 
+  @Prop({
+    type: String,
+    required: true,
+  })
+  transaction_reference_id: string;
+
   @Prop({ type: String, required: true })
   user_id: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   schedule_id: string;
 
   @Prop({
-    type: Number,
-    default: 1,
+    type: String,
+    default: 'unpaid',
   })
-  transaction_status: number;
+  transaction_status: string;
+
+  @Prop({
+    type: String,
+  })
+  transaction_type: string;
+
+  @Prop({
+    type: Date,
+  })
+  payment_date: Date;
 
   @Prop({ type: Boolean, default: true })
   is_active: boolean;

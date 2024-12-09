@@ -1,11 +1,54 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateTransactionServiceDto } from './dto/create-transaction-service.dto';
 import { UpdateTransactionServiceDto } from './dto/update-transaction-service.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { Transaction } from 'src/database/schemas/Transaction.schema';
+import { Model } from 'mongoose';
+import { RESPONSE } from 'src/utils/response.utils';
+import { GetTransactionServicesDto } from './dto/get-transaction-services.dto';
 
 @Injectable()
 export class TransactionServicesService {
-  create(createTransactionServiceDto: CreateTransactionServiceDto) {
-    return 'This action adds a new transactionService';
+  constructor(
+    @InjectModel(Transaction.name) private transactionModel: Model<Transaction>,
+  ) {}
+
+  async create(createTransactionServiceDto: CreateTransactionServiceDto) {
+    try {
+      let response = await this.transactionModel.create(
+        createTransactionServiceDto,
+      );
+      if (response == null) {
+        return RESPONSE(HttpStatus.BAD_REQUEST, {}, 'Error!');
+      }
+      return RESPONSE(HttpStatus.CREATED, response, 'Created!');
+    } catch (error: any) {
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
+
+  async transactionUpdate(
+    session_id: string,
+    updateTransactionServiceDto: UpdateTransactionServiceDto,
+  ) {
+    try {
+      let findSession: Awaited<GetTransactionServicesDto> =
+        await this.transactionModel.findOne({
+          transaction_reference_id: session_id,
+        });
+      if (findSession == null) {
+        return RESPONSE(HttpStatus.NOT_FOUND, {}, 'No Transaction Found!');
+      }
+      await this.transactionModel.updateOne(
+        {
+          transaction_reference_id: session_id,
+        },
+        updateTransactionServiceDto,
+      );
+      return RESPONSE(HttpStatus.OK, {}, 'Updated!');
+    } catch (error: any) {
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
   }
 
   findAll() {

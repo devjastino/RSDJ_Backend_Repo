@@ -1,15 +1,41 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Put,
+  Res,
+} from '@nestjs/common';
 import { TransactionServicesService } from './transaction-services.service';
 import { CreateTransactionServiceDto } from './dto/create-transaction-service.dto';
 import { UpdateTransactionServiceDto } from './dto/update-transaction-service.dto';
+import { Response } from 'express';
 
 @Controller('transaction-services')
 export class TransactionServicesController {
-  constructor(private readonly transactionServicesService: TransactionServicesService) {}
+  constructor(
+    private readonly transactionServicesService: TransactionServicesService,
+  ) {}
 
   @Post()
   create(@Body() createTransactionServiceDto: CreateTransactionServiceDto) {
     return this.transactionServicesService.create(createTransactionServiceDto);
+  }
+
+  @Put('update-success/:id')
+  async transactionUpdate(
+    @Param() params: any,
+    @Body() updateTransactionServiceDto: UpdateTransactionServiceDto,
+    @Res() res: Response,
+  ) {
+    let response = await this.transactionServicesService.transactionUpdate(
+      params.id,
+      updateTransactionServiceDto,
+    );
+    res.status(response.status).send(response);
   }
 
   @Get()
@@ -23,8 +49,14 @@ export class TransactionServicesController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTransactionServiceDto: UpdateTransactionServiceDto) {
-    return this.transactionServicesService.update(+id, updateTransactionServiceDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateTransactionServiceDto: UpdateTransactionServiceDto,
+  ) {
+    return this.transactionServicesService.update(
+      +id,
+      updateTransactionServiceDto,
+    );
   }
 
   @Delete(':id')

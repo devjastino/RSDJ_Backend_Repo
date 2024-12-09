@@ -45,6 +45,20 @@ export class VehicleServicesService {
     }
   }
 
+  async getVehicleByQuery(id: string): Promise<ResponseDTO> {
+    try {
+      let response: Awaited<GetVehicleDto> = await this.vehicleModel
+        .findOne({ is_active: true, $or: [{ vehicle_name: id }, { _id: id }] })
+        .select({ __v: 0, images: 0 });
+      if (response == null) {
+        return RESPONSE(HttpStatus.NOT_FOUND, [], 'No Schedules Yet!');
+      }
+      return RESPONSE(HttpStatus.OK, response, 'OK!');
+    } catch (error: any) {
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
+
   async getAllVehicles(): Promise<ResponseDTO> {
     try {
       let response: Awaited<GetVehicleDto[]> =
