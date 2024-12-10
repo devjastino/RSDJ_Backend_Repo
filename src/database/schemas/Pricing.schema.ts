@@ -13,9 +13,15 @@ export class Pricing {
   @Prop({
     type: Scheme.Types.Decimal128,
     required: true,
-    unique: true,
   })
   pricing: number;
+
+  @Prop({
+    type: String,
+    required: true,
+    unique: true,
+  })
+  pricing_type: string;
 
   @Prop({
     type: Number,

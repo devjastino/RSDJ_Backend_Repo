@@ -13,6 +13,7 @@ import { TransactionServicesService } from './transaction-services.service';
 import { CreateTransactionServiceDto } from './dto/create-transaction-service.dto';
 import { UpdateTransactionServiceDto } from './dto/update-transaction-service.dto';
 import { Response } from 'express';
+import { ResponseDTO } from 'src/constants/response.dto';
 
 @Controller('transaction-services')
 export class TransactionServicesController {
@@ -35,6 +36,18 @@ export class TransactionServicesController {
       params.id,
       updateTransactionServiceDto,
     );
+    res.status(response.status).send(response);
+  }
+
+  @Get('get-all-by-user/:user_id')
+  async getAllTransactionByUserId(
+    @Param() params: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    let response: Awaited<ResponseDTO> =
+      await this.transactionServicesService.getAllTransactionByUserId(
+        params.user_id,
+      );
     res.status(response.status).send(response);
   }
 

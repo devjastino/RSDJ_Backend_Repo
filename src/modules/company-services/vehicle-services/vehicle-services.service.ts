@@ -82,4 +82,42 @@ export class VehicleServicesService {
       return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
     }
   }
+
+  async getAllVehiclesWithInfo(): Promise<ResponseDTO> {
+    try {
+      let response: Awaited<GetVehicleDto[]> =
+        await this.vehicleModel.aggregate([
+          {
+            $lookup: {
+              from: 'Pricing',
+              localField: 'vehicle_type',
+              foreignField: 'pricing_type',
+              as: 'pricing_info',
+              pipeline: [
+                {
+                  $project: { __v: 0, createdAt: 0, updatedAt: 0 },
+                },
+                {
+                  $set: { pricing: { $toDouble: '$pricing' } },
+                },
+              ],
+            },
+          },
+          {
+            $set: {
+              pricing_info: { $first: '$pricing_info' },
+            },
+          },
+          {
+            $project: { __v: 0, createdAt: 0, updatedAt: 0 },
+          },
+        ]);
+      if (response.length == 0) {
+        return RESPONSE(HttpStatus.NOT_FOUND, [], 'No Schedules Yet!');
+      }
+      return RESPONSE(HttpStatus.OK, response, 'OK!');
+    } catch (error: any) {
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
 }

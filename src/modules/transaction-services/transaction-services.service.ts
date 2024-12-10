@@ -51,6 +51,19 @@ export class TransactionServicesService {
     }
   }
 
+  async getAllTransactionByUserId(user_id: string) {
+    try {
+      let response: Awaited<GetTransactionServicesDto[]> =
+        await this.transactionModel.find({ user_id: user_id });
+      if (response.length == 0) {
+        return RESPONSE(HttpStatus.NOT_FOUND, [], 'No transactions yet!');
+      }
+      return RESPONSE(HttpStatus.OK, response, 'OK!');
+    } catch (error: any) {
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
+
   findAll() {
     return `This action returns all transactionServices`;
   }

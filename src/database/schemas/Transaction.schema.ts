@@ -31,7 +31,7 @@ export class Transaction {
 
   @Prop({
     type: String,
-    default: 'unpaid',
+    default: 'UNPAID',
   })
   transaction_status: string;
 

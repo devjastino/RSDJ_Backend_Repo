@@ -34,6 +34,13 @@ export class VehicleServicesController {
     res.status(response.status).send(response);
   }
 
+  @Get('get-all-with-info')
+  async getAllVehiclesWithInfo(@Res() res: Response): Promise<void> {
+    let response: Awaited<ResponseDTO> =
+      await this.vehicleServicesService.getAllVehiclesWithInfo();
+    res.status(response.status).send(response);
+  }
+
   @Get('get-by-query/:id')
   async getVehicleByQuery(
     @Param() params: any,
