@@ -8,6 +8,8 @@ export class CreateScheduleDto {
   destination_details: string;
   price: number;
   remarks: string;
+  transaction_id: string;
+  schedule_type: string;
   schedule_status: number;
   is_active: boolean;
 }

@@ -50,6 +50,16 @@ export class BillingServicesController {
     res.status(response.status).send(response);
   }
 
+  @Post('pay-now')
+  async payNow(
+    @Body() createBillingWithEmailDto: CreateBillingWithEmailDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    let response: Awaited<ResponseDTO> =
+      await this.billingServicesService.payNow(createBillingWithEmailDto);
+    res.status(response.status).send(response);
+  }
+
   @Get('get-payment-success')
   async paymentSuccess(
     @Query() query: any,
@@ -57,6 +67,16 @@ export class BillingServicesController {
   ): Promise<void> {
     let response: Awaited<ResponseDTO> =
       await this.billingServicesService.paymentSuccess(query.session_id);
+    res.status(response.status).send(response);
+  }
+
+  @Get('get-payment-now-success')
+  async paymentNowSuccess(
+    @Query() query: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    let response: Awaited<ResponseDTO> =
+      await this.billingServicesService.paymentNowSuccess(query.session_id);
     res.status(response.status).send(response);
   }
 }

@@ -50,6 +50,15 @@ export class Schedule {
   })
   schedule_status: number;
 
+  @Prop({ type: String, required: true })
+  transaction_id: string;
+
+  @Prop({
+    type: String,
+    default: 'RENTAL',
+  })
+  schedule_type: string;
+
   @Prop({ type: Boolean, default: true })
   is_active: boolean;
 }

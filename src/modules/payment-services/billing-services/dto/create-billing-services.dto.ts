@@ -11,4 +11,5 @@ export class CreateBillingWithEmailDto {
   scheduling_data: CreateScheduleDto;
   price: number;
   product_data: any;
+  quantity: number;
 }

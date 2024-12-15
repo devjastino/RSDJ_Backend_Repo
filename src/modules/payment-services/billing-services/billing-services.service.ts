@@ -71,6 +71,102 @@ export class BillingServicesService {
     }
   }
 
+  async payNow(createBillingDto: CreateBillingWithEmailDto) {
+    try {
+      const session = await stripe.checkout.sessions.create({
+        line_items: [
+          {
+            price_data: {
+              currency: 'PHP',
+              product_data: {
+                name: createBillingDto.product_data.name,
+                description: createBillingDto.product_data.description,
+              },
+              unit_amount: createBillingDto.price * 100,
+            },
+            quantity: createBillingDto.quantity || 1,
+          },
+        ],
+        mode: 'payment',
+        success_url: `${API}billing-services/get-payment-now-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: API,
+      });
+      if (session == null) {
+        return RESPONSE(HttpStatus.BAD_REQUEST, {}, 'Error!');
+      }
+      return RESPONSE(HttpStatus.CREATED, session, 'OK!');
+    } catch (error: any) {
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
+
+  async paymentNowSuccess(id: string) {
+    try {
+      let getPaymentInfo: Awaited<ResponseDTO | any> =
+        await this.getPaymentInfo(id);
+      if (getPaymentInfo?.response?.payment_status == 'paid') {
+        await PUT(
+          API,
+          `transaction-services/update-success/${id}`,
+          {
+            transaction_status: 'PAID',
+            payment_date: Date.now(),
+          },
+          '',
+        );
+
+        let transactionConfig: {
+          transaction_price: number;
+          transaction_reference_id: string;
+          user_id: string;
+          transaction_status: string;
+          transaction_type: string;
+        } = {
+          transaction_price: getPaymentInfo.response.amount_total,
+          transaction_reference_id: getPaymentInfo.response.id,
+          user_id: 'UNREGISTERED_USER',
+          transaction_status: 'paid',
+          transaction_type: 'PAY_NOW',
+        };
+
+        let createTransaction: Awaited<ResponseDTO | any> = await POST(
+          API,
+          'transaction-services',
+          transactionConfig,
+          '',
+        );
+
+        let emailConfig = {
+          from: 'joaquinjhannchrist@gmail.com',
+          to: getPaymentInfo.response.customer_details.email,
+          subject: 'Payment',
+          html: `<div style='display:flex; flex-direction:column; color:white; background-color:black; height:100vh;'>
+              <h1 style='flex:100%;'>${'THANK YOU FOR AVAILING OUR SERVICE!'}</h1>
+              <p>We’re happy to let you know that the booking from your transaction ref: <span style="font-weight:bold;"> ${
+                createTransaction.response.response._id
+              } </span> has been processed. Thank you for availing our service. Have a nice trip!</p>
+              <p>Ref: ${createTransaction.response.response._id}</p>
+              <p>Payment Ref: ${getPaymentInfo.response.id}</p>
+              <p>
+              </p>
+            </div>`,
+        };
+        let requestEmail: Awaited<ResponseDTO> = await POST(
+          API,
+          'email-services',
+          emailConfig,
+          '',
+        );
+        return requestEmail.response;
+
+        return createTransaction.response;
+      }
+      return getPaymentInfo;
+    } catch (error: any) {
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
+
   async payLater(createBillingDto: CreateBillingWithEmailDto) {
     try {
       let getProductInfo: Awaited<ResponseDTO | any> = await GET(
