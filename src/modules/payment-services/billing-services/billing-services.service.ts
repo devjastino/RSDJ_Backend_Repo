@@ -157,8 +157,6 @@ export class BillingServicesService {
           emailConfig,
           '',
         );
-        return requestEmail.response;
-
         return createTransaction.response;
       }
       return getPaymentInfo;
