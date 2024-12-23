@@ -23,16 +23,13 @@ export class Schedule {
   @Prop({ type: Date, required: true, default: tz('Asia/Manila') })
   to: Date;
 
-  @Prop({
-    type: Number,
-    required: true,
-  })
+  @Prop({ type: Number, default: 0 })
   distance: number;
 
   @Prop({ type: String, default: '' })
   destination_details: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, default: '' })
   drop_point: string;
 
   @Prop({

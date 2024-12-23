@@ -59,6 +59,47 @@ export class VehicleServicesService {
     }
   }
 
+  async getVehicleByQueryAndPricing(id: string): Promise<ResponseDTO> {
+    try {
+      let response: Awaited<GetVehicleDto[]> =
+        await this.vehicleModel.aggregate([
+          {
+            $match: { _id: id },
+          },
+          {
+            $lookup: {
+              from: 'Pricing',
+              localField: 'vehicle_model',
+              foreignField: 'pricing_type',
+              as: 'pricing_info',
+              pipeline: [
+                {
+                  $project: { __v: 0, createdAt: 0, updatedAt: 0 },
+                },
+                {
+                  $set: { pricing: { $toDouble: '$pricing' } },
+                },
+              ],
+            },
+          },
+          {
+            $set: {
+              pricing_info: { $first: '$pricing_info' },
+            },
+          },
+          {
+            $project: { __v: 0, createdAt: 0, updatedAt: 0 },
+          },
+        ]);
+      if (response.length == 0) {
+        return RESPONSE(HttpStatus.NOT_FOUND, [], 'No Schedules Yet!');
+      }
+      return RESPONSE(HttpStatus.OK, response[0], 'OK!');
+    } catch (error: any) {
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
+
   async getAllVehicles(): Promise<ResponseDTO> {
     try {
       let response: Awaited<GetVehicleDto[]> =
@@ -90,7 +131,7 @@ export class VehicleServicesService {
           {
             $lookup: {
               from: 'Pricing',
-              localField: 'vehicle_type',
+              localField: 'vehicle_model',
               foreignField: 'pricing_type',
               as: 'pricing_info',
               pipeline: [

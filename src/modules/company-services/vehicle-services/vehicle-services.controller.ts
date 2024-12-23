@@ -50,4 +50,14 @@ export class VehicleServicesController {
       await this.vehicleServicesService.getVehicleByQuery(params.id);
     res.status(response.status).send(response);
   }
+
+  @Get('get-by-query-with-pricing/:id')
+  async getVehicleByQueryAndPricing(
+    @Param() params: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    let response: Awaited<ResponseDTO> =
+      await this.vehicleServicesService.getVehicleByQueryAndPricing(params.id);
+    res.status(response.status).send(response);
+  }
 }

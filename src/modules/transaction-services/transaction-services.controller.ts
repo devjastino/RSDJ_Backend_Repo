@@ -51,6 +51,16 @@ export class TransactionServicesController {
     res.status(response.status).send(response);
   }
 
+  @Get('get-transaction-by-id/:id')
+  async getTransactionById(
+    @Param() params: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    let response: Awaited<ResponseDTO> =
+      await this.transactionServicesService.getTransactionById(params.id);
+    res.status(response.status).send(response);
+  }
+
   @Get()
   findAll() {
     return this.transactionServicesService.findAll();

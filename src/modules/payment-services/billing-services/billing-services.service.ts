@@ -32,6 +32,12 @@ export class BillingServicesService {
             quantity: 1,
           },
         ],
+        invoice_creation: {
+          enabled: true,
+          invoice_data: {
+            description: 'Something something',
+          },
+        },
         mode: 'payment',
         success_url: `${API}billing-services/get-payment-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: API,
@@ -41,6 +47,7 @@ export class BillingServicesService {
       }
       return RESPONSE(HttpStatus.CREATED, session, 'OK!');
     } catch (error: any) {
+      console.log(error);
       return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
     }
   }
@@ -87,6 +94,13 @@ export class BillingServicesService {
             quantity: createBillingDto.quantity || 1,
           },
         ],
+        invoice_creation: {
+          enabled: true,
+          invoice_data: {
+            description: 'Something something',
+          },
+        },
+        customer_email: createBillingDto.email,
         mode: 'payment',
         success_url: `${API}billing-services/get-payment-now-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: API,
@@ -104,6 +118,12 @@ export class BillingServicesService {
     try {
       let getPaymentInfo: Awaited<ResponseDTO | any> =
         await this.getPaymentInfo(id);
+      let getInvoice = await POST(
+        'https://api.stripe.com/v1',
+        `/invoices/${getPaymentInfo.response.invoice}/send`,
+        {},
+        `sk_test_51QTlmrBOcE8ysnvUliBphu4iHnJ3AUmEH54cnj7EpRHM12VOyWfAE7Qcjv0kpPYUAMPyJf9mNCMmeFePkdryiz8h00X5sPNNeI`,
+      );
       if (getPaymentInfo?.response?.payment_status == 'paid') {
         await PUT(
           API,
@@ -136,6 +156,11 @@ export class BillingServicesService {
           '',
         );
 
+        let getTransactionInfo = await GET(
+          `${API}`,
+          `transaction-services/get-transaction-by-id/${id}`,
+        );
+
         let emailConfig = {
           from: 'joaquinjhannchrist@gmail.com',
           to: getPaymentInfo.response.customer_details.email,
@@ -143,9 +168,9 @@ export class BillingServicesService {
           html: `<div style='display:flex; flex-direction:column; color:white; background-color:black; height:100vh;'>
               <h1 style='flex:100%;'>${'THANK YOU FOR AVAILING OUR SERVICE!'}</h1>
               <p>We’re happy to let you know that the booking from your transaction ref: <span style="font-weight:bold;"> ${
-                createTransaction.response.response._id
+                getTransactionInfo.response.response._id
               } </span> has been processed. Thank you for availing our service. Have a nice trip!</p>
-              <p>Ref: ${createTransaction.response.response._id}</p>
+              <p>Ref: ${getTransactionInfo.response.response._id}</p>
               <p>Payment Ref: ${getPaymentInfo.response.id}</p>
               <p>
               </p>
@@ -157,7 +182,11 @@ export class BillingServicesService {
           emailConfig,
           '',
         );
-        return createTransaction.response;
+
+        return {
+          ...getTransactionInfo.response,
+          invoice_url: getInvoice.response.hosted_invoice_url,
+        };
       }
       return getPaymentInfo;
     } catch (error: any) {
@@ -233,6 +262,7 @@ export class BillingServicesService {
       );
       return requestEmail.response;
     } catch (error: any) {
+      console.log(error);
       return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
     }
   }

@@ -64,6 +64,25 @@ export class TransactionServicesService {
     }
   }
 
+  async getTransactionById(id: string) {
+    try {
+      let response: Awaited<GetTransactionServicesDto> =
+        await this.transactionModel.findOne({
+          transaction_reference_id: id,
+        });
+      if (response == null) {
+        return RESPONSE(
+          HttpStatus.NOT_FOUND,
+          {},
+          'Transaction does not exists!',
+        );
+      }
+      return RESPONSE(HttpStatus.OK, response, 'OK!');
+    } catch (error: any) {
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
+
   findAll() {
     return `This action returns all transactionServices`;
   }

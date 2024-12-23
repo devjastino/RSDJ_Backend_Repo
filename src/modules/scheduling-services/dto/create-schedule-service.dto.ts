@@ -1,7 +1,6 @@
 export class CreateScheduleDto {
   user_id: string;
   vehicle_id: string;
-  date: Date;
   from: Date;
   to: Date;
   distance: number;
