@@ -80,7 +80,7 @@ export class BillingServicesService {
 
   async payNow(createBillingDto: CreateBillingWithEmailDto) {
     try {
-      const session = await stripe.checkout.sessions.create({
+      let session = await stripe.checkout.sessions.create({
         line_items: [
           {
             price_data: {
@@ -119,13 +119,11 @@ export class BillingServicesService {
     try {
       let getPaymentInfo: Awaited<ResponseDTO | any> =
         await this.getPaymentInfo(id);
-      let getInvoice: any = await Promise.all(
-        POST(
-          'https://api.stripe.com/v1',
-          `/invoices/${getPaymentInfo.response.invoice}/send`,
-          {},
-          `sk_test_51QTlmrBOcE8ysnvUliBphu4iHnJ3AUmEH54cnj7EpRHM12VOyWfAE7Qcjv0kpPYUAMPyJf9mNCMmeFePkdryiz8h00X5sPNNeI`,
-        ),
+      let getInvoice: any = await POST(
+        'https://api.stripe.com/v1',
+        `/invoices/${getPaymentInfo.response.invoice}/send`,
+        {},
+        `sk_test_51QTlmrBOcE8ysnvUliBphu4iHnJ3AUmEH54cnj7EpRHM12VOyWfAE7Qcjv0kpPYUAMPyJf9mNCMmeFePkdryiz8h00X5sPNNeI`,
       );
       if (getPaymentInfo?.response?.payment_status == 'paid') {
         await PUT(
@@ -168,7 +166,8 @@ export class BillingServicesService {
           from: 'joaquinjhannchrist@gmail.com',
           to: getPaymentInfo.response.customer_details.email,
           subject: 'Payment',
-          html: `<div style='display:flex; flex-direction:column; color:white; background-color:black; height:100vh;'>
+          html: `<div style='color:white; background-color:black; height:100vh;'>
+              <img src="https://www.dropbox.com/scl/fi/gotx9nfjjzhvm9ugz40v3/Logo-1.jpeg?rlkey=a1yrg3556xilz3kz19795p38j&e=2&st=8t0x0fof&raw=1" alt="Girl in a jacket" width="200" height="200">
               <h1 style='flex:100%;'>${'THANK YOU FOR AVAILING OUR SERVICE!'}</h1>
               <p>We’re happy to let you know that the booking from your transaction ref: <span style="font-weight:bold;"> ${
                 getTransactionInfo.response.response._id
