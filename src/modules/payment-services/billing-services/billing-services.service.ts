@@ -35,7 +35,7 @@ export class BillingServicesService {
         invoice_creation: {
           enabled: true,
           invoice_data: {
-            description: 'Something something',
+            description: '',
           },
         },
         mode: 'payment',
@@ -105,6 +105,7 @@ export class BillingServicesService {
         success_url: `${API}billing-services/get-payment-now-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: API,
       });
+      console.log(session);
       if (session == null) {
         return RESPONSE(HttpStatus.BAD_REQUEST, {}, 'Error!');
       }
@@ -118,11 +119,13 @@ export class BillingServicesService {
     try {
       let getPaymentInfo: Awaited<ResponseDTO | any> =
         await this.getPaymentInfo(id);
-      let getInvoice = await POST(
-        'https://api.stripe.com/v1',
-        `/invoices/${getPaymentInfo.response.invoice}/send`,
-        {},
-        `sk_test_51QTlmrBOcE8ysnvUliBphu4iHnJ3AUmEH54cnj7EpRHM12VOyWfAE7Qcjv0kpPYUAMPyJf9mNCMmeFePkdryiz8h00X5sPNNeI`,
+      let getInvoice: any = await Promise.all(
+        POST(
+          'https://api.stripe.com/v1',
+          `/invoices/${getPaymentInfo.response.invoice}/send`,
+          {},
+          `sk_test_51QTlmrBOcE8ysnvUliBphu4iHnJ3AUmEH54cnj7EpRHM12VOyWfAE7Qcjv0kpPYUAMPyJf9mNCMmeFePkdryiz8h00X5sPNNeI`,
+        ),
       );
       if (getPaymentInfo?.response?.payment_status == 'paid') {
         await PUT(
@@ -183,10 +186,14 @@ export class BillingServicesService {
           '',
         );
 
-        return {
-          ...getTransactionInfo.response,
-          invoice_url: getInvoice.response.hosted_invoice_url,
-        };
+        return RESPONSE(
+          200,
+          {
+            ...getTransactionInfo.response.response,
+            invoice_url: getInvoice?.response?.hosted_invoice_url,
+          },
+          'OK!',
+        );
       }
       return getPaymentInfo;
     } catch (error: any) {
