@@ -10,7 +10,7 @@ import { GET, POST, PUT } from 'src/utils/fetch.utils';
 const SECRET_KEY =
   'sk_test_51QTlmrBOcE8ysnvUliBphu4iHnJ3AUmEH54cnj7EpRHM12VOyWfAE7Qcjv0kpPYUAMPyJf9mNCMmeFePkdryiz8h00X5sPNNeI';
 const stripe: Stripe = new Stripe(process.env.SECRET_KEY || SECRET_KEY);
-const API = 'http://192.168.254.105:3000/';
+const API = 'http://192.168.254.164:3000/';
 
 @Injectable()
 export class BillingServicesService {
@@ -39,7 +39,7 @@ export class BillingServicesService {
           },
         },
         mode: 'payment',
-        success_url: `${API}billing-services/get-payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        // success_url: `${API}billing-services/get-payment-success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: API,
       });
       if (session == null) {
@@ -102,9 +102,11 @@ export class BillingServicesService {
         },
         customer_email: createBillingDto.email,
         mode: 'payment',
-        success_url: `${API}billing-services/get-payment-now-success?session_id={CHECKOUT_SESSION_ID}`,
+        // success_url: `${API}billing-services/get-payment-now-success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `http://localhost:5173/test?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: API,
       });
+      console.log(session);
       if (session == null) {
         return RESPONSE(HttpStatus.BAD_REQUEST, {}, 'Error!');
       }
@@ -183,10 +185,14 @@ export class BillingServicesService {
           '',
         );
 
-        return {
-          ...getTransactionInfo.response,
-          invoice_url: getInvoice.response.hosted_invoice_url,
-        };
+        return RESPONSE(
+          200,
+          {
+            ...getTransactionInfo.response.response,
+            invoice_url: getInvoice.response.hosted_invoice_url,
+          },
+          '',
+        );
       }
       return getPaymentInfo;
     } catch (error: any) {

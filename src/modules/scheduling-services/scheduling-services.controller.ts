@@ -18,7 +18,7 @@ export class SchedulingServicesController {
     private readonly schedulingServicesService: SchedulingServicesService,
   ) {}
 
-  @UseGuards(AuthGuard)
+  // @UseGuards(AuthGuard)
   @Post()
   async create(
     @Body() createScheduleDto: CreateScheduleDto,
