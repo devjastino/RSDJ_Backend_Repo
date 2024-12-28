@@ -83,6 +83,48 @@ export class TransactionServicesService {
     }
   }
 
+  async getAllTransactions(query: any) {
+    try {
+      const limit: number = parseInt(query?.limit) || 10;
+      const offset: number = parseInt(query?.offset) || 1;
+      const page: number = parseInt(query?.page) || 1;
+
+      let count: number = await this.transactionModel.countDocuments();
+      let response: Awaited<GetTransactionServicesDto[]> =
+        await this.transactionModel.aggregate([
+          {
+            $set: {
+              transaction_price: { $toDouble: '$transaction_price' },
+            },
+          },
+          {
+            $limit: page * limit,
+          },
+          {
+            $skip: Math.floor(page - offset) * limit,
+          },
+          {
+            $project: {
+              __v: 0,
+              createdAt: 0,
+              updatedAt: 0,
+            },
+          },
+        ]);
+      if (response.length == 0) {
+        return RESPONSE(HttpStatus.NOT_FOUND, [], 'No transactions yet!');
+      }
+      return RESPONSE(
+        HttpStatus.OK,
+        { data: response, count: count, pages: Math.ceil(count / 10) },
+        'OK!',
+      );
+    } catch (error: any) {
+      console.log(error);
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
+
   findAll() {
     return `This action returns all transactionServices`;
   }

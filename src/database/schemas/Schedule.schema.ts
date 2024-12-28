@@ -48,7 +48,7 @@ export class Schedule {
   schedule_status: number;
 
   @Prop({ type: String, required: true })
-  transaction_id: string;
+  transaction_reference_id: string;
 
   @Prop({
     type: String,

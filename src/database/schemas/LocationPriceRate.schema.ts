@@ -3,10 +3,10 @@ import { HydratedDocument } from 'mongoose';
 import { randomUUID } from 'crypto';
 import { Schema as Scheme } from 'mongoose';
 
-export type LocalPriceRateDocument = HydratedDocument<LocalPriceRate>;
+export type LocationPriceRateDocument = HydratedDocument<LocationPriceRate>;
 
-@Schema({ timestamps: true, collection: 'LocalPriceRate' })
-export class LocalPriceRate {
+@Schema({ timestamps: true, collection: 'LocationPriceRate' })
+export class LocationPriceRate {
   @Prop({ type: String, default: randomUUID })
   _id: string;
 
@@ -33,5 +33,5 @@ export class LocalPriceRate {
   is_active: boolean;
 }
 
-export const LocalPriceRateSchema =
-  SchemaFactory.createForClass(LocalPriceRate);
+export const LocationPriceRateSchema =
+  SchemaFactory.createForClass(LocationPriceRate);

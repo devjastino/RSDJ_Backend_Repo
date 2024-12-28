@@ -35,7 +35,18 @@ export class PricingServicesService {
 
   async getAll(): Promise<ResponseDTO> {
     try {
-      let response: Awaited<ResponseDTO[]> = await this.pricingModel.find();
+      let response: Awaited<ResponseDTO[]> = await this.pricingModel.aggregate([
+        {
+          $set: {
+            pricing: { $toDouble: '$pricing' },
+          },
+        },
+        {
+          $project: {
+            __v: 0,
+          },
+        },
+      ]);
       if (response.length == 0) {
         return RESPONSE(HttpStatus.NOT_FOUND, [], 'No pricing data yet!');
       }

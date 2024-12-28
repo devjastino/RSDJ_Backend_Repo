@@ -47,6 +47,7 @@ export class SchedulingServicesService {
 
       return RESPONSE(HttpStatus.CREATED, response, 'Created!');
     } catch (error: any) {
+      console.log(error);
       return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
     }
   }

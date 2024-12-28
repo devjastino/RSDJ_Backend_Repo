@@ -8,6 +8,7 @@ import {
   Delete,
   Put,
   Res,
+  Query,
 } from '@nestjs/common';
 import { TransactionServicesService } from './transaction-services.service';
 import { CreateTransactionServiceDto } from './dto/create-transaction-service.dto';
@@ -58,6 +59,16 @@ export class TransactionServicesController {
   ): Promise<void> {
     let response: Awaited<ResponseDTO> =
       await this.transactionServicesService.getTransactionById(params.id);
+    res.status(response.status).send(response);
+  }
+
+  @Get('get-all-transaction')
+  async getAllTransactions(
+    @Query() query: any,
+    @Res() res: Response,
+  ): Promise<void> {
+    let response: Awaited<ResponseDTO> =
+      await this.transactionServicesService.getAllTransactions(query);
     res.status(response.status).send(response);
   }
 
