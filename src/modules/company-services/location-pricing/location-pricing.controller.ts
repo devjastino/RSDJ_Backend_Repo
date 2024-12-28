@@ -37,6 +37,13 @@ export class LocationPricingController {
     res.status(response.status).send(response);
   }
 
+  @Get('get-all')
+  async findAllActive(@Res() res: Response): Promise<void> {
+    let response: Awaited<ResponseDTO> =
+      await this.locationPricingService.findAllActive();
+    res.status(response.status).send(response);
+  }
+
   @Get(':id')
   async findOne(@Param('id') id: string, @Res() res: Response): Promise<void> {
     let response: Awaited<ResponseDTO> =

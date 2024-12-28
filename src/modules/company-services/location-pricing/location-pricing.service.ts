@@ -38,7 +38,48 @@ export class LocationPricingService {
   async findAll(): Promise<ResponseDTO> {
     try {
       let response: Awaited<GetLocationPricingDto[]> =
-        await this.locationPricingModel.find();
+        await this.locationPricingModel.aggregate([
+          {
+            $set: {
+              regular_price: { $toDouble: '$regular_price' },
+              overnight_price: { $toDouble: '$overnight_price' },
+            },
+          },
+          {
+            $project: {
+              __v: 0,
+            },
+          },
+        ]);
+      if (response.length == 0) {
+        return RESPONSE(HttpStatus.NOT_FOUND, [], 'No pricing data yet!');
+      }
+      return RESPONSE(HttpStatus.OK, response, 'OK!');
+    } catch (error: any) {
+      console.log(error);
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
+
+  async findAllActive(): Promise<ResponseDTO> {
+    try {
+      let response: Awaited<GetLocationPricingDto[]> =
+        await this.locationPricingModel.aggregate([
+          {
+            $match: { is_active: true },
+          },
+          {
+            $set: {
+              regular_price: { $toDouble: '$regular_price' },
+              overnight_price: { $toDouble: '$overnight_price' },
+            },
+          },
+          {
+            $project: {
+              __v: 0,
+            },
+          },
+        ]);
       if (response.length == 0) {
         return RESPONSE(HttpStatus.NOT_FOUND, [], 'No pricing data yet!');
       }
@@ -51,12 +92,27 @@ export class LocationPricingService {
 
   async findOne(id: string): Promise<ResponseDTO> {
     try {
-      let response: Awaited<GetLocationPricingDto | null> =
-        await this.locationPricingModel.findOne({ _id: id });
-      if (response == null) {
+      let response: Awaited<GetLocationPricingDto[]> =
+        await this.locationPricingModel.aggregate([
+          {
+            $match: { _id: id },
+          },
+          {
+            $set: {
+              regular_price: { $toDouble: '$regular_price' },
+              overnight_price: { $toDouble: '$overnight_price' },
+            },
+          },
+          {
+            $project: {
+              __v: 0,
+            },
+          },
+        ]);
+      if (response.length == 0) {
         return RESPONSE(HttpStatus.NOT_FOUND, {}, 'No data found!');
       }
-      return RESPONSE(HttpStatus.OK, response, 'OK!');
+      return RESPONSE(HttpStatus.OK, response[0], 'OK!');
     } catch (error: any) {
       console.log(error);
       return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
@@ -72,7 +128,10 @@ export class LocationPricingService {
       if (exists.status !== 200) {
         return exists;
       }
-      let updateData = await this.locationPricingModel.updateOne({ _id: id });
+      let updateData = await this.locationPricingModel.updateOne(
+        { _id: id },
+        updateLocationPricingDto,
+      );
       if (updateData == null) {
         return RESPONSE(
           HttpStatus.BAD_REQUEST,
