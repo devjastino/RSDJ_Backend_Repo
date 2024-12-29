@@ -61,6 +61,40 @@ export class LocationPricingService {
     }
   }
 
+  async findAllBySearch(search: string): Promise<ResponseDTO> {
+    try {
+      let response: Awaited<GetLocationPricingDto[]> =
+        await this.locationPricingModel.aggregate([
+          {
+            $match: {
+              location: { $regex: search, $options: 'i' },
+            },
+          },
+          {
+            $set: {
+              regular_price: { $toDouble: '$regular_price' },
+              overnight_price: { $toDouble: '$overnight_price' },
+            },
+          },
+          {
+            $project: {
+              __v: 0,
+            },
+          },
+          {
+            $limit: 10,
+          },
+        ]);
+      if (response.length == 0) {
+        return RESPONSE(HttpStatus.OK, [], 'No pricing data yet!');
+      }
+      return RESPONSE(HttpStatus.OK, response, 'OK!');
+    } catch (error: any) {
+      console.log(error);
+      return RESPONSE(HttpStatus.BAD_REQUEST, error, 'Error!');
+    }
+  }
+
   async findAllActive(): Promise<ResponseDTO> {
     try {
       let response: Awaited<GetLocationPricingDto[]> =

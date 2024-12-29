@@ -51,6 +51,16 @@ export class LocationPricingController {
     res.status(response.status).send(response);
   }
 
+  @Get('get-all/:search')
+  async findAllBySearch(
+    @Param('search') search: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    let response: Awaited<ResponseDTO> =
+      await this.locationPricingService.findAllBySearch(search);
+    res.status(response.status).send(response);
+  }
+
   @Put(':id')
   async update(
     @Param('id') id: string,
