@@ -54,7 +54,13 @@ export class SchedulingServicesService {
 
   async getAll(): Promise<ResponseDTO> {
     try {
-      let response: Awaited<any[]> = await this.scheduleModel.find();
+      let response: Awaited<any[]> = await this.scheduleModel.aggregate([
+        {
+          $set: {
+            price: { $toDouble: '$price' },
+          },
+        },
+      ]);
       if (response.length == 0) {
         return RESPONSE(HttpStatus.NOT_FOUND, [], 'No Schedules Yet!');
       }
